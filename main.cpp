@@ -48,7 +48,8 @@ struct Customer {       // Customer c(92, 1, "Kevin", 300);
             amount_paid(amount) {}
     Customer() : customer_id(-1) {}
 };
-Customer customers[301];
+//Customer customers[301];
+vector<Customer> customers;
 pthread_mutex_t customers_mutex;
 
 // 10 different ticket vending machines, each have a list (queue) for Customers:
@@ -83,7 +84,7 @@ void *executeMachine(void *param){
         }
         pthread_mutex_lock(&machine_mutexes[vm_id]);  // Lock th vending_machine mutex
         int customer_id = customer_queue.front();
-        Customer customer = customers[customer_id];
+        Customer customer = customers.at(customer_id);
         customer_queue.pop_front();
             int company_id = customer.company_id;
             pthread_mutex_lock(&company_mutexes[company_id]);  // Lock the company mutex
@@ -136,7 +137,7 @@ int main(int argc, char *argv[]) {
                    get_company_id(split_customer[2]),
                    stoi(split_customer[3]));
         pthread_mutex_lock(&customers_mutex);
-        customers[i] = c;
+        customers.push_back(c);
         pthread_mutex_unlock(&customers_mutex);
     }
     ReadFile.close();
@@ -153,7 +154,7 @@ int main(int argc, char *argv[]) {
     // Create the Customer threads:
     pthread_t customerIdentifier[numOfCustomers];
     for(int i = 0; i < numOfCustomers; i++) {
-        pthread_create(&customerIdentifier[i], nullptr, executeCustomer, &(customers[i]));
+        pthread_create(&customerIdentifier[i], nullptr, executeCustomer, &(customers.at(i)));
     }
     for (int i = 0; i < numOfCustomers; i++) {
         pthread_join(customerIdentifier[i], nullptr);
