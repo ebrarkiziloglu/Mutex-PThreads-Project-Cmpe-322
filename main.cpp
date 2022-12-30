@@ -1,5 +1,4 @@
 #include <iostream>
-//#include <stdlib.h>
 #include <string>
 #include <fstream>
 #include <vector>
@@ -65,6 +64,7 @@ void *executeCustomer(void *param){
 
     // Customer sends its id to the corresponding vending_machine's queue - if it has the right to access the queue:
     pthread_mutex_lock(&machine_mutexes[vm_id]);  // Lock the vending_machine mutex
+    // Critical section:
     list<int> queue = machines[vm_id];
     queue.push_back(customer_id-1);
     machines[vm_id] = queue;
@@ -86,6 +86,7 @@ void *executeMachine(void *param){
             }
         }
         pthread_mutex_lock(&machine_mutexes[vm_id]);  // Lock th vending_machine mutex
+        // Critical section:
         int customer_id = customer_queue.front();
         Customer customer = customers.at(customer_id);
         customer_queue.pop_front();
